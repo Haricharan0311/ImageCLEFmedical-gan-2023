@@ -3,20 +3,6 @@ from torchvision.models.resnet import BasicBlock, Bottleneck
 
 from .resnet import ResNet
 
-__all__ = [
-    "resnet10",
-    "resnet12",
-    "resnet18",
-    "resnet34",
-    "resnet50",
-    "resnet101",
-    "resnet152",
-    "default_matching_networks_support_encoder",
-    "default_matching_networks_query_encoder",
-    "default_relation_module",
-]
-
-
 def resnet10(**kwargs):
     """Constructs a ResNet-10 model."""
     return ResNet(BasicBlock, [1, 1, 1, 1], **kwargs)
@@ -69,13 +55,14 @@ def default_matching_networks_query_encoder(feature_dimension: int) -> nn.Module
 def default_relation_module(feature_dimension: int, inner_channels: int = 8):
     """
     Build the relation module that takes as input the concatenation of two feature maps.
-    Ref: Sung et al. on "Learning to compare: Relation network for few-shot learning." (2018).
+    Ref: Sung et al. (2018).
     Args:
         feature_dimension: the dimension of the feature space.
         inner_channels: number of hidden channels between the linear layers.
     Return:
         the constructed relation module
     """
+
     return nn.Sequential(
         nn.Sequential(
             nn.Conv2d(
