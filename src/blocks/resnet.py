@@ -6,6 +6,7 @@ from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
 
 # pylint: disable=invalid-name, too-many-instance-attributes, too-many-arguments
 
+# TODO: Redefine layer stacking logic to actually reflect the in-use layers when 'print'ed.
 
 class ResNet(nn.Module):
     def __init__(
@@ -20,8 +21,7 @@ class ResNet(nn.Module):
         zero_init_residual: bool = False,
     ):
         """
-        Custom ResNet architecture, with some design differences compared to the built-in
-        PyTorch ResNet.
+        Custom ResNet architecture,
         This implementation and its usage in predesigned_modules is derived from
         https://github.com/fiveai/on-episodes-fsl/blob/master/src/models/ResNet.py
         Args:
@@ -31,11 +31,8 @@ class ResNet(nn.Module):
             use_fc: whether to use one last linear layer on features
             num_classes: output dimension of the last linear layer (only used if use_fc is True)
             use_pooling: whether to average pool the features (must be True if use_fc is True)
-            big_kernel: whether to use the shape of the built-in PyTorch ResNet designed for
-                ImageNet. If False, make the first convolutional layer less destructive.
-            zero_init_residual: zero-initialize the last BN in each residual branch, so that the
-                residual branch starts with zeros, and each residual block behaves like an identity.
-                This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
+            big_kernel: whether to use the shape of the built-in PyTorch ResNet or less destructive first layer.
+            zero_init_residual: zero-initialize the last BN in each residual branch.
         """
         super().__init__()
         if planes is None:

@@ -6,6 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 
 from utils import evaluate
+from datasets import GANTripletDataset
 from pipelines.relation_network import RelationNetwork
 from blocks import *
 
@@ -25,22 +26,28 @@ def train_setup_relation_net():
 	)
 
 	val_loader = DataLoader(
-		GANTripletDataset(model='validate'),
+		GANTripletDataset(mode='validate'),
 		batch_size=1,
 		shuffle=False
 	)
 
 	loss_function = nn.CrossEntropyLoss()
 
-	backbone_net = resnet101()
-	clf_model = RelationNetwork(backbone_net).to(DEVICE)
+	backbone_net = resnet101(
+		big_kernel=True,
+		use_fc=False,
+		use_pooling=False,
+		zero_init_residual=True
+	)
+	print(backbone_net)
+	clf_model = RelationNetwork(backbone_net, use_softmax=True).to(DEVICE)
 
 	# default params adopted from the base paper.
 	n_epochs = 100
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
 	learning_rate = 1e-2
-	tb_logs_dir = Path(".")
+	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../../data/gan_triplet'))
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4
