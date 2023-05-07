@@ -22,13 +22,13 @@ def sliding_average(value_list, window):
     return np.asarray(value_list[-window:]).mean()
 
 
-def compute_backbone_output_shape(backbone):
+def compute_backbone_output_shape(backbone, in_channels=1):
 
     """
     Compute the dimension of the feature space defined by a feature extractor.
     """
-
-    input_images = torch.ones((4, 3, 32, 32))
+    print(backbone.input.shape)
+    input_images = torch.ones((4, in_channels, 32, 32))
     output = copy.deepcopy(backbone).cpu()(input_images)
     return output.shape[1:]
 

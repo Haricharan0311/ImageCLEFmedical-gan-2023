@@ -20,7 +20,7 @@ class ComparativeModelBase(nn.Module):
         self.backbone_two = backbone_two
 
         # Assume commmon params.
-        self.backbone_output_shape = compute_backbone_output_shape(backbone_one)
+        self.backbone_output_shape = compute_backbone_output_shape(backbone_one, in_channels=1)
         self.feature_dimension = self.backbone_output_shape[0]
 
         self.use_softmax = use_softmax

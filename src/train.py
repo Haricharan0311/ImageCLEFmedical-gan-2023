@@ -53,7 +53,6 @@ def train_setup_relation_net():
 		backbone_two=backbone_net_two,
 		use_softmax=True
 	).to(DEVICE)
-	print(clf_model)
 
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
@@ -91,12 +90,12 @@ def train_loop(
 		) as tqdm_train:
 			for step_idx, (
 				img_real,
-				img_generate,
+				img_generated,
 				sim_score 
 			) in tqdm_train:
 				
 				optimizer.zero_grad()
-				classification_scores = model([img_real, img_generate].to(DEVICE))
+				classification_scores = model(img_real.to(DEVICE), img_generated.to(DEVICE))
 
 				loss = loss_function(classification_scores, query_labels.to(DEVICE))
 				loss.backward()

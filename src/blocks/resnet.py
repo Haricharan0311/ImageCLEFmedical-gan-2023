@@ -19,20 +19,22 @@ class ResNet(nn.Module):
         use_pooling: bool = True,
         big_kernel: bool = False,
         zero_init_residual: bool = False,
+        use_grayscale: bool = True
     ):
         """
         Custom ResNet architecture,
-        This implementation and its usage in predesigned_modules is derived from
+        ResNet definition heavily adopted from:
         https://github.com/fiveai/on-episodes-fsl/blob/master/src/models/ResNet.py
         Args:
-            block: which core block to use (BasicBlock, Bottleneck, or any child of one of these)
-            layers: number of blocks in each of the 4 layers
-            planes: number of planes in each of the 4 layers
-            use_fc: whether to use one last linear layer on features
-            num_classes: output dimension of the last linear layer (only used if use_fc is True)
-            use_pooling: whether to average pool the features (must be True if use_fc is True)
+            block: which core block to use (BasicBlock, Bottleneck, or any child of one of these).
+            layers: number of blocks in each of the 4 layers.
+            planes: number of planes in each of the 4 layers.
+            use_fc: whether to use one last linear layer on features.
+            num_classes: output dimension of the last linear layer (only used if use_fc is True).
+            use_pooling: whether to average pool the features (must be True if use_fc is True).
             big_kernel: whether to use the shape of the built-in PyTorch ResNet or less destructive first layer.
             zero_init_residual: zero-initialize the last BN in each residual branch.
+            use_grayscale: If True, the model will expect single-channel image inputs.
         """
         super().__init__()
         if planes is None:
@@ -40,14 +42,13 @@ class ResNet(nn.Module):
 
         self.inplanes = 64
 
-        # Built-in PyTorch ResNet uses a first conv layer with a 7*7 kernel and a stride of 2,
-        # which is fine for ImageNet's 224x224 images, but too destructive for 84x84 images
-        # which are commonly used in few-shot settings.
+        self.in_channels = 1 if use_grayscale else 3
+
         self.conv1 = (
-            nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=1, bias=False)
+            nn.Conv2d(self.in_channels, self.inplanes, kernel_size=7, stride=2, padding=1, bias=False)
             if big_kernel
             else nn.Conv2d(
-                3, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False
+                self.in_channels, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False
             )
         )
         self.bn1 = nn.BatchNorm2d(self.inplanes)

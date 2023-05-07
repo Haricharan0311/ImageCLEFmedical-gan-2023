@@ -47,21 +47,32 @@ class RelationNetwork(ComparativeModelBase):
         support_features = self.backbone(support_images)
         self.prototypes = compute_prototypes(support_features, support_labels)
 
-    def forward(self, input_images):
+    def forward(self, real_image, gen_image):
         """
         Overrides method forward in ComparativeModelBase.
         - Concatenate feature maps from two images
         - Feed the result into a relation module.
         """
 
-        real_image, gen_image = input_images
         real_img_feats = self.backbone_one(real_image)
         gen_img_feats = self.backbone_two(gen_image)
+
+        print(real_img_feats.shape)
+        print(gen_img_feats.shape)
 
         # For each pair (query, prototype), we compute the concatenation of their feature maps
         # Given that query_features is of shape (n_queries, n_channels, width, height), the
         # constructed tensor is of shape (n_queries * n_prototypes, 2 * n_channels, width, height)
         # (2 * n_channels because prototypes and queries are concatenated)
+
+        comparison_candidate = torch.cat(
+            (
+                real_img_feats,
+                gen_img_feats
+            ),
+            dim=2
+        )
+
         query_prototype_feature_pairs = torch.cat(
             (
                 self.prototypes.unsqueeze(dim=0).expand(
