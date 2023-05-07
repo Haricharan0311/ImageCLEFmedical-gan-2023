@@ -8,6 +8,10 @@ import torch
 import torchvision
 from matplotlib import pyplot as plt
 from torch import Tensor, nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from .few_shot_classifier import FewShotClassifier
 
 
 def sliding_average(value_list, window):
@@ -54,3 +58,70 @@ def entropy(logits):
 
     probabilities = logits.softmax(dim=1)
     return (-(probabilities * (probabilities + 1e-12).log()).sum(dim=1)).mean()
+
+
+def evaluate_on_one_task(
+    model,
+    support_images,
+    support_labels,
+    query_images,
+    query_labels,
+):
+    """
+    Returns the number of correct predictions of query labels, and the total number of
+    predictions.
+    """
+    model.process_support_set(support_images, support_labels)
+    return (
+        torch.max(
+            model(query_images).detach().data,
+            1,
+        )[1]
+        == query_labels
+    ).sum().item(), len(query_labels)
+
+
+def evaluate(
+    model,
+    data_loader,
+    device = "cuda",
+    use_tqdm = True,
+    tqdm_prefix = None,
+):
+    """
+    Evaluate the model on few-shot classification tasks
+    """
+    
+    total_predictions = 0
+    correct_predictions = 0
+
+    model.eval()
+    with torch.no_grad():
+        with tqdm(
+            enumerate(data_loader),
+            total=len(data_loader),
+            disable=not use_tqdm,
+            desc=tqdm_prefix,
+        ) as tqdm_eval:
+            for _, (
+                support_images,
+                support_labels,
+                query_images,
+                query_labels,
+                _,
+            ) in tqdm_eval:
+                correct, total = evaluate_on_one_task(
+                    model,
+                    support_images.to(device),
+                    support_labels.to(device),
+                    query_images.to(device),
+                    query_labels.to(device),
+                )
+
+                total_predictions += total
+                correct_predictions += correct
+
+                # Log accuracy in real time
+                tqdm_eval.set_postfix(accuracy=correct_predictions / total_predictions)
+
+    return correct_predictions / total_predictions
