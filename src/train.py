@@ -35,7 +35,7 @@ def train_setup_relation_net():
 		shuffle=False
 	)
 
-	loss_function = nn.CrossEntropyLoss()
+	loss_function = nn.BCELoss()
 
 	backbone_net_one = resnet101(
 		big_kernel=True,
@@ -79,9 +79,17 @@ def train_loop(
 	loss_function, 
 	optimizer,
 	scheduler,
-	n_epochs=100):
+	n_epochs=100,
+	checkpoint_file=None):
 
-	def train_epoch(dataloader):    
+	def train_epoch(dataloader):  
+
+		if checkpoint_file is not None:
+			checkpoint = torch.load(f=checkpoint_file)
+			model.load_state_dict(state_dict=checkpoint["model_state_dict"])
+			optimizer.load_state_dict(state_dict=checkpoint["optimizer_state_dict"])
+			scheduler.load_state_dict(state_dict=checkpoint["scheduler_state_dict"])
+
 		all_loss = []
 		model.train()
 		
@@ -98,7 +106,7 @@ def train_loop(
 				computed_scores = model(imgs_real.to(DEVICE), imgs_generated.to(DEVICE))
 				# print(computed_scores)
 				# print(similarity_scores)
-				loss = loss_function(computed_scores, similarity_scores.to(DEVICE))
+				loss = loss_function(computed_scores, similarity_scores.float().to(DEVICE))
 				loss.backward()
 				optimizer.step()
 
@@ -124,7 +132,7 @@ def train_loop(
 			model, val_loader, device=DEVICE, tqdm_prefix="Validation"
 		)
 
-		if validation_accuracy > best_validation_accuracy:
+		if validation_auc > best_validation_accuracy:
 			best_validation_accuracy = validation_accuracy
 			best_state = model.state_dict()
 			
