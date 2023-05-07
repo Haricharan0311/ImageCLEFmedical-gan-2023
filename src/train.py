@@ -8,6 +8,9 @@ from pipelines.relation_network import RelationNetwork
 from blocks import *
 
 
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+
 def train_setup_relation_net():
 
 	# TODO: Parameterize the function.
