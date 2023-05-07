@@ -36,19 +36,30 @@ def train_setup_relation_net():
 
 	loss_function = nn.CrossEntropyLoss()
 
-	backbone_net = resnet101(
+	backbone_net_one = resnet101(
 		big_kernel=True,
 		use_fc=False,
 		use_pooling=False,
 		zero_init_residual=True
 	)
-	clf_model = RelationNetwork(backbone_net, use_softmax=True).to(DEVICE)
+	backbone_net_two = resnet101(
+		big_kernel=True,
+		use_fc=False,
+		use_pooling=False,
+		zero_init_residual=True
+	)
+	clf_model = RelationNetwork(
+		backbone_one=backbone_net_one, 
+		backbone_two=backbone_net_two,
+		use_softmax=True
+	).to(DEVICE)
+	print(clf_model)
 
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
 	learning_rate = 1e-2
-	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../../logs/relation-net-1'))
+	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1'))
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4

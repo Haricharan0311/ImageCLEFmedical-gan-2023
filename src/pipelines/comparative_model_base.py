@@ -5,18 +5,22 @@ from torch import Tensor, nn
 
 from utils import compute_backbone_output_shape, compute_prototypes
 
+# NOTE: Assume, temporarily, same architecture backbone.
 
 class ComparativeModelBase(nn.Module):
     """
     Abstract class providing methods usable in downstream.
     """
 
-    def __init__(self, backbone, use_softmax):
+    def __init__(self, backbone_one, backbone_two, use_softmax):
 
         super().__init__()
 
-        self.backbone = backbone
-        self.backbone_output_shape = compute_backbone_output_shape(backbone)
+        self.backbone_one = backbone_one
+        self.backbone_two = backbone_two
+
+        # Assume commmon params.
+        self.backbone_output_shape = compute_backbone_output_shape(backbone_one)
         self.feature_dimension = self.backbone_output_shape[0]
 
         self.use_softmax = use_softmax
@@ -88,5 +92,5 @@ class ComparativeModelBase(nn.Module):
             and store support labels, features, and prototypes
         """
         self.support_labels = support_labels
-        self.support_features = self.backbone(support_images)
+        self.support_features = self.backbone_one(support_images)
         self.prototypes = compute_prototypes(self.support_features, support_labels)

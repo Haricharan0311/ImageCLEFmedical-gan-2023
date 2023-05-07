@@ -55,8 +55,8 @@ class RelationNetwork(ComparativeModelBase):
         """
 
         real_image, gen_image = input_images
-        real_img_feats = self.backbone(real_image)
-        gen_img_feats = self.backbone(gen_image)
+        real_img_feats = self.backbone_one(real_image)
+        gen_img_feats = self.backbone_two(gen_image)
 
         # For each pair (query, prototype), we compute the concatenation of their feature maps
         # Given that query_features is of shape (n_queries, n_channels, width, height), the
