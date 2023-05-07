@@ -6,7 +6,7 @@ DATA_DIR = ''
 
 def GANTripletDataset(split, **kwargs):  # pylint: disable=invalid-name
     """
-    Build the CUB dataset for the specific split.
+    Build the dataset for the specific split.
     Args:
         split: one of the available split (typically train, val, test).
     Returns:
