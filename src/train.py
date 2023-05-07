@@ -58,7 +58,7 @@ def train_setup_relation_net():
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
-	learning_rate = 1e-2
+	learning_rate = 1e-3
 	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1'))
 
 	train_optimizer = SGD(
@@ -71,7 +71,7 @@ def train_setup_relation_net():
 	)
 	tb_writer = SummaryWriter(log_dir=str(tb_logs_dir))
 	
-	return clf_model, train_loader, val_loader, loss_function, train_optimizer 
+	return clf_model, train_loader, val_loader, loss_function, train_optimizer, train_scheduler 
 
 
 def train_loop(
@@ -80,6 +80,7 @@ def train_loop(
 	val_loader, 
 	loss_function, 
 	optimizer,
+	scheduler,
 	n_epochs=100):
 
 	def train_epoch(dataloader):    
@@ -108,10 +109,15 @@ def train_loop(
 
 		return mean(all_loss)
 
+
+	weights_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1/weights'))
 	best_state = model.state_dict()
 	best_validation_accuracy = 0.0
 	for epoch in range(n_epochs):
+		
 		print(f"Epoch {epoch}")
+		epoch_output_path = os.path.join(weights_dir, "weights-1_{epoch}.pth")
+		
 		average_loss = train_epoch(train_loader)
 		validation_accuracy = evaluate(
 			model, val_loader, device=DEVICE, tqdm_prefix="Validation"
@@ -120,18 +126,28 @@ def train_loop(
 		if validation_accuracy > best_validation_accuracy:
 			best_validation_accuracy = validation_accuracy
 			best_state = model.state_dict()
-			print("New 'best' model!")
+			
+			torch.save(
+                obj={
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+					"scheduler_state_dict": scheduler.state_dict(),
+                    "epoch": epoch + 1
+                },
+                f=str(epoch_output_path)
+			)
+			print("New 'best' model saved!")
 
 		tb_writer.add_scalar("Train/loss", average_loss, epoch)
 		tb_writer.add_scalar("Val/acc", validation_accuracy, epoch)
 
-		train_scheduler.step()
+		scheduler.step()
 
 
 def run_train():
 	
 	# Relation Net
-	model, train_loader, val_loader, loss_fn, optimizer = train_setup_relation_net()
-	train_loop(model, train_loader, val_loader, loss_fn, optimizer)
+	model, train_loader, val_loader, loss_fn, optimizer, scheduler = train_setup_relation_net()
+	train_loop(model, train_loader, val_loader, loss_fn, optimizer, scheduler)
 
 run_train()

@@ -35,7 +35,8 @@ class GANTripletDataset:  # pylint: disable=invalid-name
 
     
     def __len__(self):
-        return len(self.pairs_l)
+        return 4
+        # return len(self.pairs_l)
 
 
     def __getitem__(self, idx):
