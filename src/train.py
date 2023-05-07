@@ -59,7 +59,6 @@ def train_setup_relation_net():
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
 	learning_rate = 1e-3
-	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1'))
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4
@@ -69,7 +68,6 @@ def train_setup_relation_net():
 		milestones=scheduler_milestones,
 		gamma=scheduler_gamma,
 	)
-	tb_writer = SummaryWriter(log_dir=str(tb_logs_dir))
 	
 	return clf_model, train_loader, val_loader, loss_function, train_optimizer, train_scheduler 
 
@@ -111,15 +109,18 @@ def train_loop(
 
 
 	weights_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1/weights'))
+	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1'))
+	tb_writer = SummaryWriter(log_dir=str(tb_logs_dir))
+
 	best_state = model.state_dict()
 	best_validation_accuracy = 0.0
 	for epoch in range(n_epochs):
 		
 		print(f"Epoch {epoch}")
-		epoch_output_path = os.path.join(weights_dir, "weights-1_{epoch}.pth")
+		epoch_output_path = os.path.join(weights_dir, f"weights-1_{epoch}.pth")
 		
 		average_loss = train_epoch(train_loader)
-		validation_accuracy = evaluate(
+		validation_auc, validation_accuracy = evaluate(
 			model, val_loader, device=DEVICE, tqdm_prefix="Validation"
 		)
 
@@ -134,12 +135,25 @@ def train_loop(
 					"scheduler_state_dict": scheduler.state_dict(),
                     "epoch": epoch + 1
                 },
-                f=str(epoch_output_path)
+                f=os.path.join(weights_dir, f"weights-1_{epoch}.pth")
 			)
 			print("New 'best' model saved!")
+		
+		else:
+			torch.save(
+				obj={
+					"model_state_dict": model.state_dict(),
+					"optimizer_state_dict": optimizer.state_dict(),
+					"scheduler_state_dict": scheduler.state_dict(),
+					"epoch": epoch + 1
+				},
+				f=os.path.join(weights_dir, f"last_model.pth")
+			)
 
 		tb_writer.add_scalar("Train/loss", average_loss, epoch)
 		tb_writer.add_scalar("Val/acc", validation_accuracy, epoch)
+		tb_writer.add_scalar("Val/auc", validation_auc, epoch)
+		print(f"Acc: {validation_accuracy}\tAUC: {validation_auc}")
 
 		scheduler.step()
 

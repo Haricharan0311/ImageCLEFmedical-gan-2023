@@ -9,7 +9,8 @@ import torchvision
 from matplotlib import pyplot as plt
 from torch import Tensor, nn
 from torch.utils.data import DataLoader
-from torcheval.aucs.aggregation.auc import AUC
+from torcheval.metrics.aggregation.auc import AUC
+from torcheval.metrics import BinaryAccuracy
 from tqdm import tqdm
 
 
@@ -95,12 +96,8 @@ def evaluate(
     Evaluate the model on few-shot classification tasks
     """
     
-    auc = AUC()
-    auc.update(predictions, similarity_scores)
-    auc_value = auc.compute()
-
-    acc = BinaryAccuracy(threshold=0.5)
-    acc.update(predictions, similarity_scores)
+    auc = AUC().to(device)
+    acc = BinaryAccuracy(threshold=0.5).to(device)
 
     model.eval()
     with torch.no_grad():
@@ -116,11 +113,11 @@ def evaluate(
 				similarity_scores 
             ) in tqdm_eval:
                 
-                predictions = model(imgs_real.to(device), imgs_generated.to(device)).detach().data
+                predictions = model.to(device)(imgs_real.to(device), imgs_generated.to(device)).detach().data
                 auc.update(predictions, similarity_scores.to(device))
                 acc.update(predictions, similarity_scores.to(device))
 
                 # Log accuracy in real time
                 tqdm_eval.set_postfix(accuracy=acc.compute(), auc=auc.compute())
 
-    return auc.compute(), acc.compute()
+    return auc.compute().detach().data, acc.compute().detach().data
