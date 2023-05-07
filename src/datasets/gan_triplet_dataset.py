@@ -46,13 +46,13 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         
         img_path_1, img_path_2, sim_score = self.pairs_l[idx]
         try:
-            img_1 = io.read_image(img_path_1).float()
-            img_2 = io.read_image(img_path_2).float()
+            real_img = io.read_image(img_path_1).float()
+            generated_img = io.read_image(img_path_2).float()
         except FileNotFoundError as e:
             print("Error when trying to read data file:", e)
             return None
         
-        return (img_1, img_2, float(sim_score))
+        return (real_img, generated_img, float(sim_score))
 
 
     def _generate_pairs_from_triplets(self):

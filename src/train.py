@@ -2,6 +2,7 @@ from torch import nn
 from torch.optim import SGD, Optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import DataLoader
 
 from utils import evaluate
 from pipelines.relation_network import RelationNetwork
@@ -14,6 +15,19 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 def train_setup_relation_net():
 
 	# TODO: Parameterize the function.
+
+	train_loader = DataLoader(
+		GANTripletDataset(mode='train'),
+		batch_size=8,
+		pin_memory=True,
+		shuffle=True,
+	)
+
+	val_loader = DataLoader(
+		GANTripletDataset(model='validate'),
+		batch_size=1,
+		shuffle=False
+	)
 
 	loss_function = nn.CrossEntropyLoss()
 
@@ -37,7 +51,7 @@ def train_setup_relation_net():
 	)
 	tb_writer = SummaryWriter(log_dir=str(tb_logs_dir))
 	
-	return model, dataloader, loss_function, train_optimizer 
+	return model, train_loader, val_loader, loss_function, train_optimizer 
 
 
 def train_loop(model, train_loader, val_loader, loss_function, optimizer):
@@ -92,3 +106,5 @@ def run_train():
 	# Relation Net
 	model, train_loader, val_loader, loss_fn, optimizer = train_setup_relation_net()
 	train_loop(model, train_loader, val_loader, loss_fn, optimizer)
+
+run_train()

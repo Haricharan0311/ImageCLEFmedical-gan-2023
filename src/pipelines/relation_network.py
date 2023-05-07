@@ -47,13 +47,16 @@ class RelationNetwork(ComparativeModelBase):
         support_features = self.backbone(support_images)
         self.prototypes = compute_prototypes(support_features, support_labels)
 
-    def forward(self, query_images):
+    def forward(self, input_images):
         """
         Overrides method forward in ComparativeModelBase.
         - Concatenate feature maps from two images
         - Feed the result into a relation module.
         """
-        query_features = self.backbone(query_images)
+
+        real_image, gen_image = input_images
+        real_img_feats = self.backbone(real_image)
+        gen_img_feats = self.backbone(gen_image)
 
         # For each pair (query, prototype), we compute the concatenation of their feature maps
         # Given that query_features is of shape (n_queries, n_channels, width, height), the
