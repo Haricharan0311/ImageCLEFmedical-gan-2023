@@ -11,8 +11,6 @@ from torch import Tensor, nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .few_shot_classifier import FewShotClassifier
-
 
 def sliding_average(value_list, window):
     """

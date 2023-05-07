@@ -26,8 +26,8 @@ class ComparativeModelBase(nn.Module):
         self.support_features = torch.tensor(())
         self.support_labels = torch.tensor(())
 
-    
-	@abstractmethod
+
+    @abstractmethod
     def forward(
         self,
         query_images
@@ -42,7 +42,7 @@ class ComparativeModelBase(nn.Module):
     @abstractmethod
     def process_support_set(
         self,
-        support_images
+        support_images,
         support_labels
     ):
         """
@@ -81,7 +81,7 @@ class ComparativeModelBase(nn.Module):
 
     def store_support_set_data(
         self,
-        support_images
+        support_images,
         support_labels
     ):
         """

@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor, nn
 
-from .blocks import default_relation_module
+from blocks import default_relation_module
 from utils import compute_prototypes
 
 from .comparative_model_base import ComparativeModelBase

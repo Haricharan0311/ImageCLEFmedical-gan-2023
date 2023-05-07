@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from torch.optim import SGD, Optimizer
 from torch.optim.lr_scheduler import MultiStepLR
