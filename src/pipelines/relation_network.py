@@ -17,7 +17,7 @@ class RelationNetwork(ComparativeModelBase):
 
     def __init__(self, *args, relation_module=None, **kwargs):
         """
-        Build Relation Networks by calling the constructor of ComparativeModelBase.
+        Build Relation Network by calling the constructor of ComparativeModelBase.
         """
         super().__init__(*args, **kwargs)
 
@@ -39,6 +39,7 @@ class RelationNetwork(ComparativeModelBase):
         support_labels,
     ):
         """
+        [FOR LATER USE]
         Overrides process_support_set of ComparativeModelBase.
         Extract feature maps from the support set and store class prototypes.
         """
@@ -49,8 +50,8 @@ class RelationNetwork(ComparativeModelBase):
     def forward(self, query_images):
         """
         Overrides method forward in ComparativeModelBase.
-        Predict the label of a query image by concatenating its feature map with each class
-        prototype and feeding the result into a relation module.
+        - Concatenate feature maps from two images
+        - Feed the result into a relation module.
         """
         query_features = self.backbone(query_images)
 

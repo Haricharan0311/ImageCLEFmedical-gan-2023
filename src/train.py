@@ -49,17 +49,13 @@ def train_loop(model, train_loader, val_loader, loss_function, optimizer):
 		with tqdm(
 			enumerate(dataloader), total=len(dataloader), desc="Training"
 		) as tqdm_train:
-			for episode_index, (
-				support_images,
-				support_labels,
-				query_images,
-				query_labels,
-				_,
+			for step_idx, (
+				img_real,
+				img_generate,
+				sim_score 
 			) in tqdm_train:
+				
 				optimizer.zero_grad()
-				model.process_support_set(
-					support_images.to(DEVICE), support_labels.to(DEVICE)
-				)
 				classification_scores = model(query_images.to(DEVICE))
 
 				loss = loss_function(classification_scores, query_labels.to(DEVICE))
@@ -75,7 +71,7 @@ def train_loop(model, train_loader, val_loader, loss_function, optimizer):
 	best_validation_accuracy = 0.0
 	for epoch in range(n_epochs):
 		print(f"Epoch {epoch}")
-		average_loss = train_epoch(model, train_loader, train_optimizer)
+		average_loss = train_epoch(train_loader)
 		validation_accuracy = evaluate(
 			model, val_loader, device=DEVICE, tqdm_prefix="Validation"
 		)
