@@ -31,7 +31,7 @@ def train_setup_relation_net():
 
 	val_loader = DataLoader(
 		GANTripletDataset(mode='validate'),
-		batch_size=1,
+		batch_size=2,
 		shuffle=False
 	)
 

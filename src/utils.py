@@ -9,6 +9,7 @@ import torchvision
 from matplotlib import pyplot as plt
 from torch import Tensor, nn
 from torch.utils.data import DataLoader
+from torcheval.aucs.aggregation.auc import AUC
 from tqdm import tqdm
 
 
@@ -27,7 +28,7 @@ def compute_backbone_output_shape(backbone, in_channels=1):
     """
     Compute the dimension of the feature space defined by a feature extractor.
     """
-    
+
     input_images = torch.ones((4, in_channels, 32, 32))
     output = copy.deepcopy(backbone).cpu()(input_images)
     return output.shape[1:]
@@ -60,23 +61,27 @@ def entropy(logits):
 
 def evaluate_on_one_task(
     model,
-    support_images,
-    support_labels,
-    query_images,
-    query_labels,
+    imgs_real,
+	imgs_generated,
+	similarity_scores
 ):
     """
     Returns the number of correct predictions of query labels, and the total number of
     predictions.
     """
-    model.process_support_set(support_images, support_labels)
-    return (
-        torch.max(
-            model(query_images).detach().data,
-            1,
-        )[1]
-        == query_labels
-    ).sum().item(), len(query_labels)
+    predictions = model(imgs_real, imgs_generated).detach().data
+
+    auc = AUC()
+    auc.update(predictions, similarity_scores)
+    auc_value = auc.compute()
+    auc.reset()
+
+    acc = BinaryAccuracy(threshold=0.5)
+    acc.update(predictions, similarity_scores)
+    acc_val = acc.compute()
+    acc.reset()
+
+    return auc_val, acc_val
 
 
 def evaluate(
@@ -90,8 +95,12 @@ def evaluate(
     Evaluate the model on few-shot classification tasks
     """
     
-    total_predictions = 0
-    correct_predictions = 0
+    auc = AUC()
+    auc.update(predictions, similarity_scores)
+    auc_value = auc.compute()
+
+    acc = BinaryAccuracy(threshold=0.5)
+    acc.update(predictions, similarity_scores)
 
     model.eval()
     with torch.no_grad():
@@ -102,24 +111,16 @@ def evaluate(
             desc=tqdm_prefix,
         ) as tqdm_eval:
             for _, (
-                support_images,
-                support_labels,
-                query_images,
-                query_labels,
-                _,
+                imgs_real,
+				imgs_generated,
+				similarity_scores 
             ) in tqdm_eval:
-                correct, total = evaluate_on_one_task(
-                    model,
-                    support_images.to(device),
-                    support_labels.to(device),
-                    query_images.to(device),
-                    query_labels.to(device),
-                )
-
-                total_predictions += total
-                correct_predictions += correct
+                
+                predictions = model(imgs_real.to(device), imgs_generated.to(device)).detach().data
+                auc.update(predictions, similarity_scores.to(device))
+                acc.update(predictions, similarity_scores.to(device))
 
                 # Log accuracy in real time
-                tqdm_eval.set_postfix(accuracy=correct_predictions / total_predictions)
+                tqdm_eval.set_postfix(accuracy=acc.compute(), auc=auc.compute())
 
-    return correct_predictions / total_predictions
+    return auc.compute(), acc.compute()
