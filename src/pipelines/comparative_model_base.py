@@ -18,7 +18,6 @@ class ComparativeModelBase(nn.Module):
         self.backbone = backbone
         self.backbone_output_shape = compute_backbone_output_shape(backbone)
         self.feature_dimension = self.backbone_output_shape[0]
-        print(self.feature_dimension)
 
         self.use_softmax = use_softmax
 

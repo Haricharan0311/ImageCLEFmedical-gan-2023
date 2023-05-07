@@ -4,6 +4,9 @@ from torch.optim import SGD, Optimizer
 from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
+from pathlib import Path
+import os
+from tqdm import tqdm
 
 from utils import evaluate
 from datasets import GANTripletDataset
@@ -39,15 +42,13 @@ def train_setup_relation_net():
 		use_pooling=False,
 		zero_init_residual=True
 	)
-	print(backbone_net)
 	clf_model = RelationNetwork(backbone_net, use_softmax=True).to(DEVICE)
 
 	# default params adopted from the base paper.
-	n_epochs = 100
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
 	learning_rate = 1e-2
-	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../../data/gan_triplet'))
+	tb_logs_dir = Path(os.path.join(os.path.split(__file__)[0], '../../logs/relation-net-1'))
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4
@@ -59,10 +60,16 @@ def train_setup_relation_net():
 	)
 	tb_writer = SummaryWriter(log_dir=str(tb_logs_dir))
 	
-	return model, train_loader, val_loader, loss_function, train_optimizer 
+	return clf_model, train_loader, val_loader, loss_function, train_optimizer 
 
 
-def train_loop(model, train_loader, val_loader, loss_function, optimizer):
+def train_loop(
+	model, 
+	train_loader, 
+	val_loader, 
+	loss_function, 
+	optimizer,
+	n_epochs=100):
 
 	def train_epoch(dataloader):    
 		all_loss = []
@@ -78,7 +85,7 @@ def train_loop(model, train_loader, val_loader, loss_function, optimizer):
 			) in tqdm_train:
 				
 				optimizer.zero_grad()
-				classification_scores = model(query_images.to(DEVICE))
+				classification_scores = model([img_real, img_generate].to(DEVICE))
 
 				loss = loss_function(classification_scores, query_labels.to(DEVICE))
 				loss.backward()
