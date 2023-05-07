@@ -3,7 +3,7 @@ from abc import abstractmethod
 import torch
 from torch import Tensor, nn
 
-from .utils import compute_backbone_output_shape, compute_prototypes
+from utils import compute_backbone_output_shape, compute_prototypes
 
 
 class ComparativeModelBase(nn.Module):
@@ -45,8 +45,7 @@ class ComparativeModelBase(nn.Module):
         support_labels
     ):
         """
-        Harness information from the support set, so that query labels can later be predicted using
-        a forward call
+        Harness information from the support set, so that query labels can later be predicted.
         """
         raise NotImplementedError(
             "All few-shot algorithms must implement a process_support_set method."
@@ -60,8 +59,7 @@ class ComparativeModelBase(nn.Module):
 
     def softmax_if_specified(self, output):
         """
-        If the option is chosen when the classifier is initialized, we perform a softmax on the
-        output in order to return soft probabilities.
+        If the option is chosen when the classifier is initialized, we perform a softmax.
         """
         return output.softmax(-1) if self.use_softmax else output
 
