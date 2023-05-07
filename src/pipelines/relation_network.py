@@ -57,39 +57,18 @@ class RelationNetwork(ComparativeModelBase):
         real_img_feats = self.backbone_one(real_image)
         gen_img_feats = self.backbone_two(gen_image)
 
-        print(real_img_feats.shape)
-        print(gen_img_feats.shape)
-
-        # For each pair (query, prototype), we compute the concatenation of their feature maps
+        # For each pair (real, gen), we compute the concatenation of their feature maps
         # Given that query_features is of shape (n_queries, n_channels, width, height), the
         # constructed tensor is of shape (n_queries * n_prototypes, 2 * n_channels, width, height)
         # (2 * n_channels because prototypes and queries are concatenated)
 
         comparison_candidate = torch.cat(
-            (
-                real_img_feats,
-                gen_img_feats
-            ),
-            dim=2
+            (real_img_feats, gen_img_feats),
+            dim=1
         )
 
-        query_prototype_feature_pairs = torch.cat(
-            (
-                self.prototypes.unsqueeze(dim=0).expand(
-                    query_features.shape[0], -1, -1, -1, -1
-                ),
-                query_features.unsqueeze(dim=1).expand(
-                    -1, self.prototypes.shape[0], -1, -1, -1
-                ),
-            ),
-            dim=2,
-        ).view(-1, 2 * self.feature_dimension, *query_features.shape[2:])
-
-        # Each pair (query, prototype) is assigned a relation scores in [0,1]. Then we reshape the
-        # tensor so that relation_scores is of shape (n_queries, n_prototypes).
-        relation_scores = self.relation_module(query_prototype_feature_pairs).view(
-            -1, self.prototypes.shape[0]
-        )
+        # Each pair (real, gen) is assigned a relation scores in [0,1].
+        relation_scores = self.relation_module(comparison_candidate).squeeze()
 
         return self.softmax_if_specified(relation_scores)
 

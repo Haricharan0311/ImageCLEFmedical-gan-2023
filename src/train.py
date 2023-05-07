@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 import os
 from tqdm import tqdm
+from statistics import mean
 
 from utils import evaluate
 from datasets import GANTripletDataset
@@ -89,15 +90,16 @@ def train_loop(
 			enumerate(dataloader), total=len(dataloader), desc="Training"
 		) as tqdm_train:
 			for step_idx, (
-				img_real,
-				img_generated,
-				sim_score 
+				imgs_real,
+				imgs_generated,
+				similarity_scores 
 			) in tqdm_train:
 				
 				optimizer.zero_grad()
-				classification_scores = model(img_real.to(DEVICE), img_generated.to(DEVICE))
-
-				loss = loss_function(classification_scores, query_labels.to(DEVICE))
+				computed_scores = model(imgs_real.to(DEVICE), imgs_generated.to(DEVICE))
+				# print(computed_scores)
+				# print(similarity_scores)
+				loss = loss_function(computed_scores, similarity_scores.to(DEVICE))
 				loss.backward()
 				optimizer.step()
 
