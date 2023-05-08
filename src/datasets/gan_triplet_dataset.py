@@ -45,15 +45,25 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         - Randomly, but exhaustively, generate pairs from the triplet.
         """
         
-        img_path_1, img_path_2 = self.pairs_l[idx]
-        try:
-            real_img = io.read_image(img_path_1).float()
-            generated_img = io.read_image(img_path_2).float()
-        except FileNotFoundError as e:
-            print("Error when trying to read data file:", e)
-            return None
+        if self.data_mode == 'test':
+            img_path_1, img_path_2 = self.pairs_l[idx]
+            try:
+                real_img = io.read_image(img_path_1).float()
+                generated_img = io.read_image(img_path_2).float()
+            except FileNotFoundError as e:
+                print("Error when trying to read data file:", e)
+                return None            
+            return (real_img, generated_img)
         
-        return (real_img, generated_img)
+        else:
+            img_path_1, img_path_2, similarity_scores = self.pairs_l[idx]
+            try:
+                real_img = io.read_image(img_path_1).float()
+                generated_img = io.read_image(img_path_2).float()
+            except FileNotFoundError as e:
+                print("Error when trying to read data file:", e)
+                return None            
+            return (real_img, generated_img, float(similarity_scores))
 
 
     def _generate_pairs_from_triplets(self):

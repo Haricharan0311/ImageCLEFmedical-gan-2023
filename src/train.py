@@ -58,7 +58,7 @@ def train_setup_relation_net():
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
-	learning_rate = 1e-4
+	learning_rate = 3e-5
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4
@@ -87,8 +87,8 @@ def train_loop(
 		if checkpoint_file is not None:
 			checkpoint = torch.load(f=checkpoint_file)
 			model.load_state_dict(state_dict=checkpoint["model_state_dict"])
-			optimizer.load_state_dict(state_dict=checkpoint["optimizer_state_dict"])
-			scheduler.load_state_dict(state_dict=checkpoint["scheduler_state_dict"])
+			# optimizer.load_state_dict(state_dict=checkpoint["optimizer_state_dict"])
+			# scheduler.load_state_dict(state_dict=checkpoint["scheduler_state_dict"])
 
 		all_loss = []
 		model.train()
