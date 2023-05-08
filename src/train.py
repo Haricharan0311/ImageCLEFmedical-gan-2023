@@ -82,13 +82,14 @@ def train_loop(
 	n_epochs=100,
 	checkpoint_file=None):
 
-	def train_epoch(dataloader):  
+	if checkpoint_file is not None:
+		checkpoint = torch.load(f=checkpoint_file)
+		model.load_state_dict(state_dict=checkpoint["model_state_dict"])
+		# optimizer.load_state_dict(state_dict=checkpoint["optimizer_state_dict"])
+		# scheduler.load_state_dict(state_dict=checkpoint["scheduler_state_dict"])
+		print(f"Checkpoint loaded from {checkpoint_file}")
 
-		if checkpoint_file is not None:
-			checkpoint = torch.load(f=checkpoint_file)
-			model.load_state_dict(state_dict=checkpoint["model_state_dict"])
-			# optimizer.load_state_dict(state_dict=checkpoint["optimizer_state_dict"])
-			# scheduler.load_state_dict(state_dict=checkpoint["scheduler_state_dict"])
+	def train_epoch(dataloader):  
 
 		all_loss = []
 		model.train()
