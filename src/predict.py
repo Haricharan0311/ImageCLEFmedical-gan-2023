@@ -1,8 +1,5 @@
 import torch
 from torch import nn
-from torch.optim import SGD, Optimizer
-from torch.optim.lr_scheduler import MultiStepLR
-from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 from pathlib import Path
 import os
@@ -53,15 +50,31 @@ def predict_setup_relation_net():
 def test_loop(
 	model, 
 	test_loader, 
-	checkpoint_file=None):
-	
-	pass
+	checkpoint_file):
+
+	checkpoint = torch.load(f=checkpoint_file)
+	model.load_state_dict(state_dict=checkpoint["model_state_dict"])
+
+	model.eval()
+	with torch.no_grad():
+		with tqdm(
+			enumerate(test_loader),
+			total=len(test_loader),
+			desc="Prediction"
+		) as tqdm_eval:
+			for _, (
+				imgs_real,
+				imgs_generated
+			) in tqdm_eval:
+				
+				predictions = model.to(DEVICE)(imgs_real.to(DEVICE), imgs_generated.to(DEVICE)).detach().data
+				print(predictions)
 
 
 def run_predict():
 	
 	# Relation Net
-	model, test_loader = test_setup_relation_net()
+	model, test_loader = predict_setup_relation_net()
 	test_loop(model, test_loader, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
 
 run_predict()

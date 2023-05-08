@@ -45,7 +45,7 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         - Randomly, but exhaustively, generate pairs from the triplet.
         """
         
-        img_path_1, img_path_2, sim_score = self.pairs_l[idx]
+        img_path_1, img_path_2 = self.pairs_l[idx]
         try:
             real_img = io.read_image(img_path_1).float()
             generated_img = io.read_image(img_path_2).float()
@@ -53,7 +53,7 @@ class GANTripletDataset:  # pylint: disable=invalid-name
             print("Error when trying to read data file:", e)
             return None
         
-        return (real_img, generated_img, float(sim_score))
+        return (real_img, generated_img)
 
 
     def _generate_pairs_from_triplets(self):
@@ -76,7 +76,7 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         def prefix_source_path(img_fname):
             return os.path.join(self.img_concrete_path, img_fname)
 
-        real = glob.glob(os.path.join(self.img_concrete_path, 'real/*.png'))
+        real = glob.glob(os.path.join(self.img_concrete_path, 'real_all/*.png'))
         generated = glob.glob(os.path.join(self.img_concrete_path, 'generated/*.png'))
 
         self.pairs_l = list(itertools.product(*[real, generated]))
