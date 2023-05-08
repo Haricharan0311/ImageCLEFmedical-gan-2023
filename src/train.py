@@ -58,7 +58,7 @@ def train_setup_relation_net():
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
-	learning_rate = 1e-3
+	learning_rate = 1e-4
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4
@@ -170,6 +170,6 @@ def run_train():
 	
 	# Relation Net
 	model, train_loader, val_loader, loss_fn, optimizer, scheduler = train_setup_relation_net()
-	train_loop(model, train_loader, val_loader, loss_fn, optimizer, scheduler)
+	train_loop(model, train_loader, val_loader, loss_fn, optimizer, scheduler, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
 
 run_train()
