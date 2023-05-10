@@ -63,7 +63,7 @@ def predict_loop(
 			desc="Prediction"
 		) as tqdm_eval:
 			for _, (
-				imgs_real, 
+				imgs_real,zero_init_residual 
 				imgs_generated
 			) in tqdm_eval:
 				
@@ -75,6 +75,6 @@ def run_predict():
 	
 	# Relation Net
 	model, test_loader = predict_setup_relation_net()
-	predict_loop(model, test_loader, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
+	predict_loop(model, test_loader, checkpoint_file=os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1/weights/weights-1_0.pth'))
 
 run_predict()

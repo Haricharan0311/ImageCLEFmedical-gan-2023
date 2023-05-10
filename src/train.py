@@ -171,6 +171,6 @@ def run_train():
 	
 	# Relation Net
 	model, train_loader, val_loader, loss_fn, optimizer, scheduler = train_setup_relation_net()
-	train_loop(model, train_loader, val_loader, loss_fn, optimizer, scheduler, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
+	train_loop(model, train_loader, val_loader, loss_fn, optimizer, scheduler, checkpoint_file=os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1/weights/weights-1_0.pth'))
 
 run_train()

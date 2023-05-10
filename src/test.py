@@ -76,6 +76,6 @@ def run_test():
 	
 	# Relation Net
 	model, test_dataset = test_setup_relation_net()
-	test_loop(model, test_dataset, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/weights-1_0.pth')
+	test_loop(model, test_dataset, checkpoint_file=os.path.join(os.path.split(__file__)[0], '../logs/relation-net-1/weights/last_model.pth'))
 
 run_test()
