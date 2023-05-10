@@ -52,18 +52,20 @@ def test_loop(
 
 	model.eval()
 	with torch.no_grad():
+		
 		with tqdm(
-			enumerate(test_dataset),
-			total=len(test_dataset),
+			range(test_dataset.get_test_size())
+			total=test_dataset.get_test_size(),
 			desc="Testing"
 		) as tqdm_eval:
+			
 			for _, (
-				imgs_real,
-				imgs_generated
-			) in tqdm_eval:
-				
-				predictions = model.to(DEVICE)(imgs_real.to(DEVICE), imgs_generated.to(DEVICE)).detach().data
-				print(predictions)
+				idx
+			) in tqdm_eval:				
+				for real_img, gen_img, sim_score in test_dataset.get_test_samples(idx):
+
+					predictions = model.to(DEVICE)(real_img.to(DEVICE), gen_img.to(DEVICE)).detach().data
+					print(predictions)
 
 
 def run_test():

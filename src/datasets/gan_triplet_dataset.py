@@ -29,8 +29,8 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         self.data_mode = mode
 
         self.pairs_l = []
-        self.generated_l = []
         self.original_l = []
+        self.generated_l = []
         self._generate_pairs()   # sets self.pairs_l
         
         print(f"Initialized '{mode}' data from {self.img_concrete_path}")
@@ -68,7 +68,11 @@ class GANTripletDataset:  # pylint: disable=invalid-name
             return (real_img, generated_img, float(similarity_scores))
 
 
-    def get_for_test(self, stop_iter=None):
+    def get_test_size(self);
+        return len(self.original_l)
+
+    
+    def get_test_samples(self, idx):
         """ 
         Generator to yield all 'generated' samples for each 'original' image.
         To cumulatively assess the class of an 'original' image.
@@ -76,10 +80,19 @@ class GANTripletDataset:  # pylint: disable=invalid-name
 
         print("[INFO] Do NOT set up the 'dataloader' for random sampling with this generator!")
 
-        for orig_path, is_real in self.original_l:
+        def supply_all_generated(orig_path, is_real):
+            
+            orig_img = io.read_image(orig_path).float()
             for gen_path in self.generated_l:
-                yield orig_path, gen_path, is_real
-            yield stop_iter
+                try:
+                    generated_img = io.read_image(gen_path).float()
+                    is_real = float(is_real) if is_real is not None
+                    yield orig_img, generate_img, is_real
+                except FileNotFoundError as e:
+                    print("Error when trying to read data file:", e)
+                    yield None, None, None  
+
+        return supply_all_generated(*self.original_l[idx])
 
 
     def _generate_pairs_from_triplets(self):
