@@ -58,7 +58,7 @@ def train_setup_relation_net():
 	# default params adopted from the base paper.
 	scheduler_milestones = [120, 160]
 	scheduler_gamma = 0.1
-	learning_rate = 3e-5
+	learning_rate = 1e-5
 
 	train_optimizer = SGD(
 		clf_model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4

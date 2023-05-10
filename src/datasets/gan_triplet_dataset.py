@@ -66,6 +66,18 @@ class GANTripletDataset:  # pylint: disable=invalid-name
             return (real_img, generated_img, float(similarity_scores))
 
 
+    def get_for_test(self):
+        """ 
+        Generator to yield all 'generated' samples for each 'original' image.
+        To cumulatively assess the class of an 'original' image.
+        """
+
+        print("[INFO] Do NOT set up the 'dataloader' for random sampling with this generator!")
+
+        print(self.pairs_l)
+        yield None
+
+
     def _generate_pairs_from_triplets(self):
 
         def prefix_source_path(img_fname):

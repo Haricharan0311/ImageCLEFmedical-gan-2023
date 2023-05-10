@@ -15,16 +15,14 @@ from blocks import *
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def predict_setup_relation_net():
+def test_setup_relation_net():
 
 	# TODO: Parameterize the function.
 
-	test_loader = DataLoader(
-		GANTripletDataset(mode='test'),
-		batch_size=8,
-		pin_memory=True,
-		shuffle=True,
-	)
+	test_dataset = GANTripletDataset(mode='validate')
+
+	for i in test_dataset.get_for_test():
+		print(i)
 
 	backbone_net_one = resnet101(
 		big_kernel=True,
@@ -47,7 +45,7 @@ def predict_setup_relation_net():
 	return clf_model, test_loader
 
 
-def predict_loop(
+def test_loop(
 	model, 
 	test_loader, 
 	checkpoint_file):
@@ -63,7 +61,7 @@ def predict_loop(
 			desc="Prediction"
 		) as tqdm_eval:
 			for _, (
-				imgs_real, 
+				imgs_real,
 				imgs_generated
 			) in tqdm_eval:
 				
@@ -74,7 +72,7 @@ def predict_loop(
 def run_predict():
 	
 	# Relation Net
-	model, test_loader = predict_setup_relation_net()
-	predict_loop(model, test_loader, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
+	model, test_loader = test_setup_relation_net()
+	test_loop(model, test_loader, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
 
 run_predict()
