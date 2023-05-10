@@ -1,3 +1,4 @@
+import torch
 from torchvision import io
 import os
 import itertools
@@ -68,7 +69,7 @@ class GANTripletDataset:  # pylint: disable=invalid-name
             return (real_img, generated_img, float(similarity_scores))
 
 
-    def get_test_size(self);
+    def get_test_size(self):
         return len(self.original_l)
 
     
@@ -82,14 +83,15 @@ class GANTripletDataset:  # pylint: disable=invalid-name
 
         def supply_all_generated(orig_path, is_real):
             
-            orig_img = io.read_image(orig_path).float()
+            orig_img = io.read_image(orig_path).float().unsqueeze(dim=0)
             for gen_path in self.generated_l:
                 try:
-                    generated_img = io.read_image(gen_path).float()
-                    is_real = float(is_real) if is_real is not None
-                    yield orig_img, generate_img, is_real
+                    generated_img = io.read_image(gen_path).float().unsqueeze(dim=0)
+                    is_real = float(is_real) if is_real is not None else is_real
+                    yield orig_img, generated_img, torch.Tensor([is_real])
                 except FileNotFoundError as e:
                     print("Error when trying to read data file:", e)
+                    # TODO: Will break anyway. Traceforward more suitably.
                     yield None, None, None  
 
         return supply_all_generated(*self.original_l[idx])

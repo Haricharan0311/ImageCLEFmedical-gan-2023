@@ -54,24 +54,28 @@ def test_loop(
 	with torch.no_grad():
 		
 		with tqdm(
-			range(test_dataset.get_test_size())
+			range(test_dataset.get_test_size()),
 			total=test_dataset.get_test_size(),
 			desc="Testing"
 		) as tqdm_eval:
 			
-			for _, (
-				idx
-			) in tqdm_eval:				
+			for idx in tqdm_eval:	
+
+				eval_score = 0			
+				compare_cnt = 0
 				for real_img, gen_img, sim_score in test_dataset.get_test_samples(idx):
 
 					predictions = model.to(DEVICE)(real_img.to(DEVICE), gen_img.to(DEVICE)).detach().data
-					print(predictions)
+					eval_score += predictions.item()
+					compare_cnt += 1
+				
+				print(eval_score/compare_cnt)
 
 
 def run_test():
 	
 	# Relation Net
 	model, test_dataset = test_setup_relation_net()
-	test_loop(model, test_dataset, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
+	test_loop(model, test_dataset, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/weights-1_0.pth')
 
 run_test()
