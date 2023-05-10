@@ -29,6 +29,8 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         self.data_mode = mode
 
         self.pairs_l = []
+        self.generated_l = []
+        self.original_l = []
         self._generate_pairs()   # sets self.pairs_l
         
         print(f"Initialized '{mode}' data from {self.img_concrete_path}")
@@ -66,7 +68,7 @@ class GANTripletDataset:  # pylint: disable=invalid-name
             return (real_img, generated_img, float(similarity_scores))
 
 
-    def get_for_test(self):
+    def get_for_test(self, stop_iter=None):
         """ 
         Generator to yield all 'generated' samples for each 'original' image.
         To cumulatively assess the class of an 'original' image.
@@ -74,8 +76,10 @@ class GANTripletDataset:  # pylint: disable=invalid-name
 
         print("[INFO] Do NOT set up the 'dataloader' for random sampling with this generator!")
 
-        print(self.pairs_l)
-        yield None
+        for orig_path, is_real in self.original_l:
+            for gen_path in self.generated_l:
+                yield orig_path, gen_path, is_real
+            yield stop_iter
 
 
     def _generate_pairs_from_triplets(self):
@@ -91,6 +95,13 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         all_pairs.extend(list(itertools.product(*[real_used, generated, [1]])))
         all_pairs.extend(list(itertools.product(*[real_unused, generated, [0]])))
         self.pairs_l = list(all_pairs)
+        
+        original_l = []
+        original_l.extend([(img_path, 1) for img_path in real_used])
+        original_l.extend([(img_path, 0) for img_path in real_unused])
+        self.original_l = list(original_l)
+
+        self.generated_l = list(generated)
 
 
     def _generate_pairs_from_couplets(self):
@@ -101,7 +112,9 @@ class GANTripletDataset:  # pylint: disable=invalid-name
         real = glob.glob(os.path.join(self.img_concrete_path, 'real_all/*.png'))
         generated = glob.glob(os.path.join(self.img_concrete_path, 'generated/*.png'))
 
-        self.pairs_l = list(itertools.product(*[real, generated]))
+        self.pairs_l = list(itertools.product(*[real, generated]))        
+        self.original_l = [(img_path, None) for img_path in real]
+        self.generated_l = list(generated)
 
 
     def _generate_pairs(self):

@@ -21,9 +21,6 @@ def test_setup_relation_net():
 
 	test_dataset = GANTripletDataset(mode='validate')
 
-	for i in test_dataset.get_for_test():
-		print(i)
-
 	backbone_net_one = resnet101(
 		big_kernel=True,
 		use_fc=False,
@@ -42,12 +39,12 @@ def test_setup_relation_net():
 		use_softmax=True
 	).to(DEVICE)
 	
-	return clf_model, test_loader
+	return clf_model, test_dataset
 
 
 def test_loop(
 	model, 
-	test_loader, 
+	test_dataset, 
 	checkpoint_file):
 
 	checkpoint = torch.load(f=checkpoint_file)
@@ -56,9 +53,9 @@ def test_loop(
 	model.eval()
 	with torch.no_grad():
 		with tqdm(
-			enumerate(test_loader),
-			total=len(test_loader),
-			desc="Prediction"
+			enumerate(test_dataset),
+			total=len(test_dataset),
+			desc="Testing"
 		) as tqdm_eval:
 			for _, (
 				imgs_real,
@@ -69,10 +66,10 @@ def test_loop(
 				print(predictions)
 
 
-def run_predict():
+def run_test():
 	
 	# Relation Net
-	model, test_loader = test_setup_relation_net()
-	test_loop(model, test_loader, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
+	model, test_dataset = test_setup_relation_net()
+	test_loop(model, test_dataset, checkpoint_file='/home/miruna/.dumps/nag-implementation/repository/logs/relation-net-1/weights/last_model.pth')
 
-run_predict()
+run_test()
