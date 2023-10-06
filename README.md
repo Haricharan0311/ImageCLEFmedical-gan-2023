@@ -3,4 +3,5 @@ Scripts, figures, and working notes for our team's participation in ImageCLEFmed
 
 ## Quick Links
 
-- [Link to manuscript](https://www.dei.unipd.it/~faggioli/temp/CLEF2023-proceedings/paper-116.pdf), describing the methods and rationale.
+- [Link to the research paper](https://ceur-ws.org/Vol-3497/paper-116.pdf) describing the methods, rationale, and results.
+- [Link to contest resources](https://www.imageclef.org/2023/medical/gans).
