@@ -1,6 +1,6 @@
-# ImageCLEFmedical GANs 2023
+# ImageCLEF Medical GANs 2023
 
-Scripts, figures, and working notes for our team's participation in [ImageCLEFmed GAN task 2023](https://www.imageclef.org/2023/medical/gans), part of the [ImageCLEF labs](https://www.imageclef.org/2023) at the [14th CLEF Conference, 2023](https://clef2023.clef-initiative.eu/index.php).
+Scripts, figures, and working notes for our team's participation in [ImageCLEFmedical GAN task 2023](https://www.imageclef.org/2023/medical/gans), part of the [ImageCLEF labs](https://www.imageclef.org/2023) at the [14th CLEF Conference, 2023](https://clef2023.clef-initiative.eu/index.php).
 
 **Implementation Stack**: Python, PyTorch, Scikit-learn.
 
