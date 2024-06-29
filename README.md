@@ -34,10 +34,12 @@ If you find our work useful in your research, don't forget to cite us!
 
 ## Key Highlights
 
-- A relation neural network based on few-shot learning to capture the underlying similarities between real and artificial images.
-- The network learns a custom difference function to effectively compare images for artificialness arising from GAN-based generation.
-- For comparison, it uses hierarchical clustering to evaluate the quality of image feature separation between real and artificial images.
-- The proposed relation network achieves a **61.4% F1-score** in distinguishing real and artificial medical images on a blinded contest test set.
+   <img width="800" alt="image" src="./assets/images/relational-model.png">
 
-See the [paper](https://ceur-ws.org/Vol-3497/paper-116.pdf) and [contest page](https://www.imageclef.org/2023/medical/gans) for more information.
+- A relation neural network based on few-shot learning to capture the underlying similarities between real and artificial images.
+- The network learns a tailored difference function to effectively compare images for artificialness arising from GAN-based generation.
+- For comparison, hierarchical clustering is used to evaluate the quality of image feature separation between real and artificial images.
+- The proposed relational network achieves a **61.4% F1-score** in distinguishing real and artificial medical images on a blinded test-set provided and evaluated by ImageCLEF.
+
+See [research note](https://ceur-ws.org/Vol-3497/paper-116.pdf) and [contest page](https://www.imageclef.org/2023/medical/gans) for more information.
 
